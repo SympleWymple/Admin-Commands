@@ -3,15 +3,16 @@ local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 
 return function(Settings)
-	script.SystemPackages.Settings:Destroy()
-	Settings.Name = "Settings"
-	Settings.Parent = script.SystemPackages
+	script.SystemPackages.Settings:Destroy() --> delete settings in package it was just a place holder
+	Settings.Name = "Settings" -- get the new one and name it
+	Settings.Parent = script.SystemPackages -- and put it back in our package folder
 
 	warn("sz_Tolu's Admin; Preparing...")
 
+	-- get folders, remote evnts, and tables
 	local remotefolder = Instance.new("Folder")
 
-	local isPlayerAddedFired = false
+	local isPlayerAddedFired = false --> check if the player added event was fired for the first player
 	local remotes = {
 		Function = Instance.new("RemoteFunction"),
 		Event = Instance.new("RemoteEvent"),
@@ -26,6 +27,9 @@ return function(Settings)
 	remotefolder.Parent = ReplicatedStorage
 	remotefolder = nil
 
+		
+--> used to go through the rank permissions from highest to lowest do we this because we just inherit the commands from the admin ranks under Owner perms, 
+		--instead of listing each admin rank for each indivudal admin rank
 	local function buildTempPermissions(permissions, group, groupconfig)
 		local temptable = {}
 		if groupconfig["Inherits"] and permissions[groupconfig["Inherits"]] and permissions[groupconfig["Inherits"]]["Permissions"] then
@@ -45,6 +49,7 @@ return function(Settings)
 	end
 
 
+	--> this actuall build the table for each admin rank getting the info from the above function
 	local function buildPermissionTables()
 		local permissions = systemPackages.Settings["Settings"]["Permissions"]
 
@@ -83,6 +88,7 @@ return function(Settings)
 		end
 	end
 
+		---> this is used for checking the rank list permissions, for groups and players, also groups have two types of ways it can be set
 	local function buildAdminList()
 		local settingsRequired = require(Settings)
 		local ranks = settingsRequired["Settings"]["Ranks"]
@@ -257,6 +263,7 @@ return function(Settings)
 		return true
 	end
 
+		--> this sets up all the server packages and runs them
 	local function loadPackages()
 		for _, package in pairs(script.SystemPackages:GetChildren()) do
 			if package:IsA("ModuleScript") and package.Name ~= "Commands" then
@@ -277,6 +284,7 @@ return function(Settings)
 		buildDisableTables()
 		buildAdminList()
 
+			--> just adding info into the api module which will be needed in other modules
 		systemPackages.API.PermissionTable = permissionTable
 		systemPackages.API.DisableTable = disableTable
 		systemPackages.API.Settings = Settings
@@ -293,7 +301,7 @@ return function(Settings)
 			end
 		end
 
-
+-- this is used for setting up the command modules some modules have scripts under them which we dont want to run
 		local allowedFolderNames = {"Character", "Messaging", "Moderation", "logs", "other", "Banning"}
 		for _,v in pairs(script.Packages:GetDescendants()) do
 			if v:IsA("ModuleScript") and v.Parent.ClassName ~= "ModuleScript" and table.find(allowedFolderNames, v.Parent.Name)   then
@@ -325,6 +333,7 @@ return function(Settings)
 			end
 		end
 
+	
 		for _,v in pairs(script.Library.UI.Client.Scripts:GetDescendants()) do
 			if v:IsA("ModuleScript") then
 				local ok, response = pcall(function()
@@ -346,10 +355,12 @@ return function(Settings)
 
 	loadPackages()
 
+		--> sets up bindale function used for commands running successfuly
 	script.waypointBindable.OnInvoke = function()
 		return systemPackages.Waypoints.fetch()
 	end
 
+		-- used for private messaging
 	remotes.Function.OnServerInvoke = function(Client, Type, Protocol, Attachment)
 		if Type == "notifyCallback" then
 			-- bindable was not the best choice I could have used for this oh well 
@@ -363,6 +374,8 @@ return function(Settings)
 		end
 	end
 
+
+		--> pretty self explantory sorts out all the client stuff adding it to player gui and running some scripts
 	local function setupUIForPlayer(Client: Player)
 		local UI = script.Library.UI.Client:Clone()
 		UI.ResetOnSpawn = false
@@ -380,6 +393,7 @@ return function(Settings)
 		require(clientPackages).buildClientTable(Client)
 	end
 
+		-- this sends a message to player letting them know what to do once adming is fully setup for them
 	local function lastCalledFunction(player: Player)
 		local Api = systemPackages.API
 		local getPlayerAdminRank = Api.getAdminLevel(player.UserId, player.Name)
