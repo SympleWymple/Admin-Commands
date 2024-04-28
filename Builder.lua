@@ -18,9 +18,10 @@ return function(Settings)
 		Event = Instance.new("RemoteEvent"),
 		BindableEvent = Instance.new("BindableEvent")
 	}
-
+		
+	-- global packages 
 	local packages,systemPackages, permissionTable, disableTable, cachedData, sharedCommons, globalAdmins = {}, {}, {}, {}, {}, {}, {}
-
+	-- change name of folder, add all related events and then put it in the garbage once done
 	remotefolder.Name = "sz_Tolu Remotes"
 	remotes.Function.Parent, remotes.Event.Parent, remotes.BindableEvent.Parent = remotefolder, remotefolder, remotefolder
 	remotes.BindableEvent.Name = "BindableEvent"
@@ -89,6 +90,8 @@ return function(Settings)
 	end
 
 		---> this is used for checking the rank list permissions, for groups and players, also groups have two types of ways it can be set
+		--> manually code each section (yes this could definately be improved and become more effecient
+		--<  but to make sure there are no errors this way is fine
 	local function buildAdminList()
 		local settingsRequired = require(Settings)
 		local ranks = settingsRequired["Settings"]["Ranks"]
@@ -333,7 +336,8 @@ return function(Settings)
 			end
 		end
 
-	
+		
+	-- start running all the client scripts so we can add global variables to them
 		for _,v in pairs(script.Library.UI.Client.Scripts:GetDescendants()) do
 			if v:IsA("ModuleScript") then
 				local ok, response = pcall(function()
